@@ -1,5 +1,6 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog
+import os
+from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog, QListWidget
 from PyQt6.QtCore import Qt
 from md5_hashing import md5_string, md5_file, integrity_check
 
@@ -8,7 +9,7 @@ class MD5HasherApp(QWidget):
         super().__init__()
 
         self.setWindowTitle('MD5 Хеширование')
-        self.setGeometry(100, 100, 400, 350)
+        self.setGeometry(100, 100, 400, 400)
 
         self.layout = QVBoxLayout()
 
@@ -91,6 +92,23 @@ class MD5HasherApp(QWidget):
         self.tab2.setLayout(self.tab2_layout)
         self.tabs.addTab(self.tab2, 'Хеширование файла')
 
+        # Вкладка 3: Хеширование файлов в папке
+        self.tab3 = QWidget()
+        self.tab3_layout = QVBoxLayout()
+
+        self.folder_label = QLabel('Выберите папку для хеширования файлов:')
+        self.tab3_layout.addWidget(self.folder_label)
+
+        self.folder_button = QPushButton('Выбрать папку')
+        self.folder_button.clicked.connect(self.on_folder_button_click)
+        self.tab3_layout.addWidget(self.folder_button)
+
+        self.files_list = QListWidget()
+        self.tab3_layout.addWidget(self.files_list)
+
+        self.tab3.setLayout(self.tab3_layout)
+        self.tabs.addTab(self.tab3, 'Хеширование папки')
+
         self.setLayout(self.layout)
 
     def update_hash_realtime(self, text):
@@ -129,6 +147,36 @@ class MD5HasherApp(QWidget):
             self.result_output_file.setText('Хеши совпадают!')
         else:
             self.result_output_file.setText('Хеши не совпадают!')
+
+    def on_folder_button_click(self):
+        folder_path = QFileDialog.getExistingDirectory(self, "Выберите папку для хеширования файлов")
+        if folder_path:
+            # Очищаем список файлов
+            self.files_list.clear()
+
+            # Путь для записи файла с хешами
+            output_file_path = os.path.join(folder_path, "file_hashes.txt")
+
+            # Открываем файл для записи
+            with open(output_file_path, "w") as output_file:
+                # Записываем заголовок
+                output_file.write("Файл: MD5 Хеш\n")
+
+                # Получаем все файлы в папке
+                for root, dirs, files in os.walk(folder_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        hashed_text = md5_file(file_path)
+
+                        # Добавляем информацию в список
+                        self.files_list.addItem(f"{file}: {hashed_text}")
+
+                        # Записываем в файл
+                        output_file.write(f"{file}: {hashed_text}\n")
+
+            # Показываем сообщение о том, что файл был сохранен
+            self.files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

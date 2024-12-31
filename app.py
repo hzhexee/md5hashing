@@ -2,6 +2,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog
 from PyQt6.QtCore import Qt
 from md5_hashing import md5_string, md5_file, integrity_check
+from folderIntegrityCheck import compare_hash_files
 
 class MD5HasherApp(QWidget):
     def __init__(self):

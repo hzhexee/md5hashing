@@ -1,5 +1,6 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog
+import os
+from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog, QListWidget
 from PyQt6.QtCore import Qt
 from md5_hashing import md5_string, md5_file, integrity_check
 from folderIntegrityCheck import compare_hash_files
@@ -9,7 +10,7 @@ class MD5HasherApp(QWidget):
         super().__init__()
 
         self.setWindowTitle('MD5 Хеширование')
-        self.setGeometry(100, 100, 400, 350)
+        self.setGeometry(100, 100, 400, 400)
 
         self.layout = QVBoxLayout()
 
@@ -92,7 +93,46 @@ class MD5HasherApp(QWidget):
         self.tab2.setLayout(self.tab2_layout)
         self.tabs.addTab(self.tab2, 'Хеширование файла')
 
+        # Вкладка 3: Хеширование файлов в папке и сравнение хешей
+        self.tab3 = QWidget()
+        self.tab3_layout = QVBoxLayout()
+
+        self.folder_label = QLabel('Выберите папку для хеширования файлов:')
+        self.tab3_layout.addWidget(self.folder_label)
+
+        self.folder_button = QPushButton('Выбрать папку')
+        self.folder_button.clicked.connect(self.on_folder_button_click)
+        self.tab3_layout.addWidget(self.folder_button)
+
+        self.files_list = QListWidget()
+        self.tab3_layout.addWidget(self.files_list)
+
+        self.compare_label = QLabel('Сравнение файлов с хешами:')
+        self.tab3_layout.addWidget(self.compare_label)
+
+        self.select_ref_button = QPushButton('Выбрать эталонный файл')
+        self.select_ref_button.clicked.connect(self.select_reference_file)
+        self.tab3_layout.addWidget(self.select_ref_button)
+
+        self.select_curr_button = QPushButton('Выбрать текущий файл')
+        self.select_curr_button.clicked.connect(self.select_current_file)
+        self.tab3_layout.addWidget(self.select_curr_button)
+
+        self.compare_button = QPushButton('Сравнить файлы')
+        self.compare_button.clicked.connect(self.compare_files)
+        self.tab3_layout.addWidget(self.compare_button)
+
+        self.compare_results = QListWidget()
+        self.tab3_layout.addWidget(self.compare_results)
+
+        self.tab3.setLayout(self.tab3_layout)
+        self.tabs.addTab(self.tab3, 'Хеширование и сравнение')
+
         self.setLayout(self.layout)
+
+        # Атрибуты для хранения путей к файлам
+        self.reference_file_path = None
+        self.current_file_path = None
 
     def update_hash_realtime(self, text):
         if text:
@@ -130,6 +170,55 @@ class MD5HasherApp(QWidget):
             self.result_output_file.setText('Хеши совпадают!')
         else:
             self.result_output_file.setText('Хеши не совпадают!')
+
+    def on_folder_button_click(self):
+        folder_path = QFileDialog.getExistingDirectory(self, "Выберите папку для хеширования файлов")
+        if folder_path:
+            self.files_list.clear()
+
+            output_file_path = os.path.join(folder_path, "file_hashes.txt")
+
+            with open(output_file_path, "w") as output_file:
+                output_file.write("Файл\tMD5 Хеш\n")
+
+                for root, dirs, files in os.walk(folder_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        hashed_text = md5_file(file_path)
+
+                        self.files_list.addItem(f"{file}: {hashed_text}")
+                        output_file.write(f"{file}: {hashed_text}\n")
+
+            self.files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
+
+    def select_reference_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите эталонный файл с хешами", "", "Все файлы (*)")
+        if file_path:
+            self.reference_file_path = file_path
+            self.compare_results.addItem(f"Эталонный файл выбран: {file_path}")
+
+    def select_current_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите текущий файл с хешами", "", "Все файлы (*)")
+        if file_path:
+            self.current_file_path = file_path
+            self.compare_results.addItem(f"Текущий файл выбран: {file_path}")
+
+    def compare_files(self):
+        if not self.reference_file_path or not self.current_file_path:
+            self.compare_results.addItem("Ошибка: Не выбраны оба файла для сравнения.")
+            return
+
+        result = compare_hash_files(self.reference_file_path, self.current_file_path)
+
+        self.compare_results.clear()
+        self.compare_results.addItem("Совпадающие файлы:")
+        self.compare_results.addItems(result["matched"] or ["Нет совпадений"])
+        self.compare_results.addItem("\nНесовпадающие файлы:")
+        self.compare_results.addItems(result["mismatched"] or ["Нет несовпадений"])
+        self.compare_results.addItem("\nОтсутствующие файлы:")
+        self.compare_results.addItems(result["missing"] or ["Нет отсутствующих файлов"])
+
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

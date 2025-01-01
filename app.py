@@ -10,22 +10,23 @@ class MD5HasherApp(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Load and apply stylesheet
+        # Загрузка и применение таблицы стилей
         with open('styles.css', 'r') as file:
             self.setStyleSheet(file.read())
+            
 
         self.setWindowTitle('MD5 Хеширование')
-        self.setGeometry(100, 100, 800, 600)  # Increased window size
+        self.setGeometry(100, 100, 800, 600)  # Увеличенный размер окна
 
         self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(20, 20, 20, 20)  # Increased margins
-        self.layout.setSpacing(15)  # Increased spacing
+        self.layout.setContentsMargins(20, 20, 20, 20)  # Увеличенные отступы
+        self.layout.setSpacing(15)  # Увеличенное расстояние
 
         self.tabs = QTabWidget()
-        self.tabs.setDocumentMode(True)  # Modern tab style
+        self.tabs.setDocumentMode(True)  # Современный стиль вкладок
         self.layout.addWidget(self.tabs)
 
-        # Add spacing between sections
+        # Добавление отступов между секциями
         def add_spacing(layout):
             spacer = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
             layout.addItem(spacer)
@@ -76,7 +77,7 @@ class MD5HasherApp(QWidget):
         self.result_output.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.result_output)
 
-        add_spacing(self.tab1_layout)  # Add spaces between sections
+        add_spacing(self.tab1_layout)  # Добавить отступы между секциями
 
         self.tab1.setLayout(self.tab1_layout)
         self.tabs.addTab(self.tab1, 'Хеширование строки')
@@ -127,7 +128,7 @@ class MD5HasherApp(QWidget):
         self.result_output_file.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.result_output_file)
 
-        add_spacing(self.tab2_layout)  # Add spaces between sections
+        add_spacing(self.tab2_layout)  # Добавить отступы между секциями
 
         self.tab2.setLayout(self.tab2_layout)
         self.tabs.addTab(self.tab2, 'Хеширование файла')
@@ -174,12 +175,12 @@ class MD5HasherApp(QWidget):
         self.compare_results.setFont(QFont('Arial', 12))
         self.tab3_layout.addWidget(self.compare_results)
 
-        add_spacing(self.tab3_layout)  # Add spaces between sections
+        add_spacing(self.tab3_layout)  # Добавить отступы между секциями
 
         self.tab3.setLayout(self.tab3_layout)
         self.tabs.addTab(self.tab3, 'Хеширование и сравнение')
 
-        # Add Tab 4: Folder Hash
+        # Добавить Вкладку 4: Хеш папки
         self.tab4 = QWidget()
         self.tab4_layout = QVBoxLayout()
         self.tab4_layout.setContentsMargins(20, 20, 20, 20)
@@ -237,11 +238,11 @@ class MD5HasherApp(QWidget):
         self.reference_file_path = None
         self.current_file_path = None
 
-        # Set fixed height for buttons
+        # Установка фиксированной высоты для кнопок
         for button in self.findChildren(QPushButton):
             button.setMinimumHeight(40)
 
-        # Set fixed height for input fields
+        # Установка фиксированной высоты для полей ввода
         for input_field in self.findChildren(QLineEdit):
             input_field.setMinimumHeight(40)
 
@@ -334,21 +335,21 @@ class MD5HasherApp(QWidget):
         if folder_path:
             combined_hashes = ""
             
-            # Get all files and sort them for consistent ordering
+            # Получаем все файлы и сортируем их для последовательного порядка
             all_files = []
             for root, _, files in os.walk(folder_path):
                 for file in files:
                     file_path = os.path.join(root, file)
                     all_files.append(file_path)
             
-            all_files.sort()  # Sort files for consistent hash
+            all_files.sort()  # Сортировка файлов для постоянного хеша
 
-            # Calculate hash for each file and combine
+            # Вычисляем хеш для каждого файла и объединяем
             for file_path in all_files:
                 file_hash = md5_file(file_path)
                 combined_hashes += file_hash
 
-            # Calculate final hash of combined hashes
+            # Вычисляем финальный хеш из объединенных хешей
             final_hash = md5_string(combined_hashes)
             self.folder_hash_output.setText(final_hash)
 

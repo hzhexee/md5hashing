@@ -1,7 +1,8 @@
 import sys
 import os
-from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog, QListWidget
+from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog, QListWidget, QHBoxLayout, QSpacerItem, QSizePolicy
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 from md5_hashing import md5_string, md5_file, integrity_check
 from folderIntegrityCheck import compare_hash_files
 
@@ -9,48 +10,73 @@ class MD5HasherApp(QWidget):
     def __init__(self):
         super().__init__()
 
+        # Load and apply stylesheet
+        with open('styles.css', 'r') as file:
+            self.setStyleSheet(file.read())
+
         self.setWindowTitle('MD5 Хеширование')
-        self.setGeometry(100, 100, 400, 400)
+        self.setGeometry(100, 100, 800, 600)  # Increased window size
 
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(20, 20, 20, 20)  # Increased margins
+        self.layout.setSpacing(15)  # Increased spacing
 
         self.tabs = QTabWidget()
+        self.tabs.setDocumentMode(True)  # Modern tab style
         self.layout.addWidget(self.tabs)
+
+        # Add spacing between sections
+        def add_spacing(layout):
+            spacer = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+            layout.addItem(spacer)
 
         # Вкладка 1: Хеширование строки
         self.tab1 = QWidget()
         self.tab1_layout = QVBoxLayout()
+        self.tab1_layout.setContentsMargins(20, 20, 20, 20)
+        self.tab1_layout.setSpacing(15)
 
         self.input_label = QLabel('Введите строку:')
+        self.input_label.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.input_label)
 
         self.input_field = QLineEdit()
+        self.input_field.setFont(QFont('Arial', 12))
         self.input_field.textChanged.connect(self.update_hash_realtime)
         self.tab1_layout.addWidget(self.input_field)
 
         self.hash_label = QLabel('MD5 Хеш:')
+        self.hash_label.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.hash_label)
 
         self.hash_output = QLineEdit()
+        self.hash_output.setFont(QFont('Arial', 12))
         self.hash_output.setReadOnly(True)
         self.tab1_layout.addWidget(self.hash_output)
 
         # Эталонный хеш для сравнения
         self.reference_hash_label = QLabel('Эталонный хеш:')
+        self.reference_hash_label.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.reference_hash_label)
 
         self.reference_hash_input = QLineEdit()
+        self.reference_hash_input.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.reference_hash_input)
 
         self.check_button = QPushButton('Проверить хеш')
+        self.check_button.setFont(QFont('Arial', 12))
         self.check_button.clicked.connect(self.check_hash_string)
         self.tab1_layout.addWidget(self.check_button)
 
         self.result_label = QLabel('Результат проверки:')
+        self.result_label.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.result_label)
 
         self.result_output = QLabel('')
+        self.result_output.setFont(QFont('Arial', 12))
         self.tab1_layout.addWidget(self.result_output)
+
+        add_spacing(self.tab1_layout)  # Add spaces between sections
 
         self.tab1.setLayout(self.tab1_layout)
         self.tabs.addTab(self.tab1, 'Хеширование строки')
@@ -58,37 +84,50 @@ class MD5HasherApp(QWidget):
         # Вкладка 2: Хеширование файла
         self.tab2 = QWidget()
         self.tab2_layout = QVBoxLayout()
+        self.tab2_layout.setContentsMargins(20, 20, 20, 20)
+        self.tab2_layout.setSpacing(15)
 
         self.file_label = QLabel('Выберите файл для хеширования:')
+        self.file_label.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.file_label)
 
         self.file_button = QPushButton('Выбрать файл')
+        self.file_button.setFont(QFont('Arial', 12))
         self.file_button.clicked.connect(self.on_file_button_click)
         self.tab2_layout.addWidget(self.file_button)
 
         self.hash_label_file = QLabel('MD5 Хеш:')
+        self.hash_label_file.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.hash_label_file)
 
         self.hash_output_file = QLineEdit()
+        self.hash_output_file.setFont(QFont('Arial', 12))
         self.hash_output_file.setReadOnly(True)
         self.tab2_layout.addWidget(self.hash_output_file)
 
         # Эталонный хеш для сравнения
         self.reference_hash_label_file = QLabel('Эталонный хеш:')
+        self.reference_hash_label_file.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.reference_hash_label_file)
 
         self.reference_hash_input_file = QLineEdit()
+        self.reference_hash_input_file.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.reference_hash_input_file)
 
         self.check_button_file = QPushButton('Проверить хеш')
+        self.check_button_file.setFont(QFont('Arial', 12))
         self.check_button_file.clicked.connect(self.check_hash_file)
         self.tab2_layout.addWidget(self.check_button_file)
 
         self.result_label_file = QLabel('Результат проверки:')
+        self.result_label_file.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.result_label_file)
 
         self.result_output_file = QLabel('')
+        self.result_output_file.setFont(QFont('Arial', 12))
         self.tab2_layout.addWidget(self.result_output_file)
+
+        add_spacing(self.tab2_layout)  # Add spaces between sections
 
         self.tab2.setLayout(self.tab2_layout)
         self.tabs.addTab(self.tab2, 'Хеширование файла')
@@ -96,34 +135,46 @@ class MD5HasherApp(QWidget):
         # Вкладка 3: Хеширование файлов в папке и сравнение хешей
         self.tab3 = QWidget()
         self.tab3_layout = QVBoxLayout()
+        self.tab3_layout.setContentsMargins(20, 20, 20, 20)
+        self.tab3_layout.setSpacing(15)
 
         self.folder_label = QLabel('Выберите папку для хеширования файлов:')
+        self.folder_label.setFont(QFont('Arial', 12))
         self.tab3_layout.addWidget(self.folder_label)
 
         self.folder_button = QPushButton('Выбрать папку')
+        self.folder_button.setFont(QFont('Arial', 12))
         self.folder_button.clicked.connect(self.on_folder_button_click)
         self.tab3_layout.addWidget(self.folder_button)
 
         self.files_list = QListWidget()
+        self.files_list.setFont(QFont('Arial', 12))
         self.tab3_layout.addWidget(self.files_list)
 
         self.compare_label = QLabel('Сравнение файлов с хешами:')
+        self.compare_label.setFont(QFont('Arial', 12))
         self.tab3_layout.addWidget(self.compare_label)
 
         self.select_ref_button = QPushButton('Выбрать эталонный файл')
+        self.select_ref_button.setFont(QFont('Arial', 12))
         self.select_ref_button.clicked.connect(self.select_reference_file)
         self.tab3_layout.addWidget(self.select_ref_button)
 
         self.select_curr_button = QPushButton('Выбрать текущий файл')
+        self.select_curr_button.setFont(QFont('Arial', 12))
         self.select_curr_button.clicked.connect(self.select_current_file)
         self.tab3_layout.addWidget(self.select_curr_button)
 
         self.compare_button = QPushButton('Сравнить файлы')
+        self.compare_button.setFont(QFont('Arial', 12))
         self.compare_button.clicked.connect(self.compare_files)
         self.tab3_layout.addWidget(self.compare_button)
 
         self.compare_results = QListWidget()
+        self.compare_results.setFont(QFont('Arial', 12))
         self.tab3_layout.addWidget(self.compare_results)
+
+        add_spacing(self.tab3_layout)  # Add spaces between sections
 
         self.tab3.setLayout(self.tab3_layout)
         self.tabs.addTab(self.tab3, 'Хеширование и сравнение')
@@ -133,6 +184,14 @@ class MD5HasherApp(QWidget):
         # Атрибуты для хранения путей к файлам
         self.reference_file_path = None
         self.current_file_path = None
+
+        # Set fixed height for buttons
+        for button in self.findChildren(QPushButton):
+            button.setMinimumHeight(40)
+
+        # Set fixed height for input fields
+        for input_field in self.findChildren(QLineEdit):
+            input_field.setMinimumHeight(40)
 
     def update_hash_realtime(self, text):
         if text:
@@ -218,7 +277,6 @@ class MD5HasherApp(QWidget):
         self.compare_results.addItem("\nОтсутствующие файлы:")
         self.compare_results.addItems(result["missing"] or ["Нет отсутствующих файлов"])
 
-        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

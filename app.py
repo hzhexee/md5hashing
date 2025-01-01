@@ -179,6 +179,58 @@ class MD5HasherApp(QWidget):
         self.tab3.setLayout(self.tab3_layout)
         self.tabs.addTab(self.tab3, 'Хеширование и сравнение')
 
+        # Add Tab 4: Folder Hash
+        self.tab4 = QWidget()
+        self.tab4_layout = QVBoxLayout()
+        self.tab4_layout.setContentsMargins(20, 20, 20, 20)
+        self.tab4_layout.setSpacing(15)
+
+        self.folder_hash_label = QLabel('Выберите папку для вычисления общего хеша:')
+        self.folder_hash_label.setFont(QFont('Arial', 12))
+        self.tab4_layout.addWidget(self.folder_hash_label)
+
+        self.folder_hash_button = QPushButton('Выбрать папку')
+        self.folder_hash_button.setFont(QFont('Arial', 12))
+        self.folder_hash_button.clicked.connect(self.calculate_folder_hash)
+        self.folder_hash_button.setMinimumHeight(40)
+        self.tab4_layout.addWidget(self.folder_hash_button)
+
+        self.folder_hash_output_label = QLabel('Общий хеш папки:')
+        self.folder_hash_output_label.setFont(QFont('Arial', 12))
+        self.tab4_layout.addWidget(self.folder_hash_output_label)
+
+        self.folder_hash_output = QLineEdit()
+        self.folder_hash_output.setFont(QFont('Arial', 12))
+        self.folder_hash_output.setReadOnly(True)
+        self.folder_hash_output.setMinimumHeight(40)
+        self.tab4_layout.addWidget(self.folder_hash_output)
+
+        self.folder_reference_hash_label = QLabel('Эталонный хеш папки:')
+        self.folder_reference_hash_label.setFont(QFont('Arial', 12))
+        self.tab4_layout.addWidget(self.folder_reference_hash_label)
+
+        self.folder_reference_hash_input = QLineEdit()
+        self.folder_reference_hash_input.setFont(QFont('Arial', 12))
+        self.folder_reference_hash_input.setMinimumHeight(40)
+        self.tab4_layout.addWidget(self.folder_reference_hash_input)
+
+        self.folder_check_button = QPushButton('Проверить хеш')
+        self.folder_check_button.setFont(QFont('Arial', 12))
+        self.folder_check_button.clicked.connect(self.check_folder_hash)
+        self.folder_check_button.setMinimumHeight(40)
+        self.tab4_layout.addWidget(self.folder_check_button)
+
+        self.folder_result_label = QLabel('Результат проверки:')
+        self.folder_result_label.setFont(QFont('Arial', 12))
+        self.tab4_layout.addWidget(self.folder_result_label)
+
+        self.folder_result_output = QLabel('')
+        self.folder_result_output.setFont(QFont('Arial', 12))
+        self.tab4_layout.addWidget(self.folder_result_output)
+
+        self.tab4.setLayout(self.tab4_layout)
+        self.tabs.addTab(self.tab4, 'Хеш папки')
+
         self.setLayout(self.layout)
 
         # Атрибуты для хранения путей к файлам
@@ -276,6 +328,42 @@ class MD5HasherApp(QWidget):
         self.compare_results.addItems(result["mismatched"] or ["Нет несовпадений"])
         self.compare_results.addItem("\nОтсутствующие файлы:")
         self.compare_results.addItems(result["missing"] or ["Нет отсутствующих файлов"])
+
+    def calculate_folder_hash(self):
+        folder_path = QFileDialog.getExistingDirectory(self, "Выберите папку для хеширования")
+        if folder_path:
+            combined_hashes = ""
+            
+            # Get all files and sort them for consistent ordering
+            all_files = []
+            for root, _, files in os.walk(folder_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    all_files.append(file_path)
+            
+            all_files.sort()  # Sort files for consistent hash
+
+            # Calculate hash for each file and combine
+            for file_path in all_files:
+                file_hash = md5_file(file_path)
+                combined_hashes += file_hash
+
+            # Calculate final hash of combined hashes
+            final_hash = md5_string(combined_hashes)
+            self.folder_hash_output.setText(final_hash)
+
+    def check_folder_hash(self):
+        current_hash = self.folder_hash_output.text()
+        reference_hash = self.folder_reference_hash_input.text()
+
+        if not current_hash or not reference_hash:
+            self.folder_result_output.setText('Ошибка: Отсутствует текущий или эталонный хеш')
+            return
+
+        if integrity_check(current_hash, reference_hash):
+            self.folder_result_output.setText('Хеши совпадают!')
+        else:
+            self.folder_result_output.setText('Хеши не совпадают!')
 
 
 if __name__ == '__main__':

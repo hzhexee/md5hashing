@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from md5_hashing import md5_string, md5_file, integrity_check
 from folderIntegrityCheck import compare_hash_files
+from hashingFunctions import *
 
 class MD5HasherApp(QWidget):
     def __init__(self):
@@ -247,124 +248,36 @@ class MD5HasherApp(QWidget):
             input_field.setMinimumHeight(40)
 
     def update_hash_realtime(self, text):
-        if text:
-            hashed_text = md5_string(text)
-            self.hash_output.setText(hashed_text)
-        else:
-            self.hash_output.clear()
+        update_hash_realtime(text, self.hash_output)
 
     def check_hash_string(self):
-        # Получаем значения из полей
-        hash1 = self.hash_output.text()
-        hash2 = self.reference_hash_input.text()
-
-        # Проверяем хеши
-        if integrity_check(hash1, hash2):
-            self.result_output.setText('Хеши совпадают!')
-        else:
-            self.result_output.setText('Хеши не совпадают!')
+        check_hash_string(self.hash_output, self.reference_hash_input, self.result_output)
 
     def on_file_button_click(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл для хеширования", "", "Все файлы (*)")
-        if file_path:
-            hashed_text = md5_file(file_path)
-            self.hash_output_file.setText(hashed_text)
-        else:
-            self.hash_output_file.clear()
+        on_file_button_click(self, self.hash_output_file)
 
     def check_hash_file(self):
-        # Получаем значения из полей
-        hash1 = self.hash_output_file.text()
-        hash2 = self.reference_hash_input_file.text()
-
-        # Проверяем хеши
-        if integrity_check(hash1, hash2):
-            self.result_output_file.setText('Хеши совпадают!')
-        else:
-            self.result_output_file.setText('Хеши не совпадают!')
+        check_hash_file(self.hash_output_file, self.reference_hash_input_file, self.result_output_file)
 
     def on_folder_button_click(self):
-        folder_path = QFileDialog.getExistingDirectory(self, "Выберите папку для хеширования файлов")
-        if folder_path:
-            self.files_list.clear()
-
-            output_file_path = os.path.join(folder_path, "file_hashes.txt")
-
-            with open(output_file_path, "w") as output_file:
-                output_file.write("Файл\tMD5 Хеш\n")
-
-                for root, dirs, files in os.walk(folder_path):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        hashed_text = md5_file(file_path)
-
-                        self.files_list.addItem(f"{file}: {hashed_text}")
-                        output_file.write(f"{file}: {hashed_text}\n")
-
-            self.files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
+        on_folder_button_click(self, self.files_list)
 
     def select_reference_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите эталонный файл с хешами", "", "Все файлы (*)")
-        if file_path:
-            self.reference_file_path = file_path
-            self.compare_results.addItem(f"Эталонный файл выбран: {file_path}")
+        self.reference_file_path = select_reference_file(self, self.compare_results)
 
     def select_current_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите текущий файл с хешами", "", "Все файлы (*)")
-        if file_path:
-            self.current_file_path = file_path
-            self.compare_results.addItem(f"Текущий файл выбран: {file_path}")
+        self.current_file_path = select_current_file(self, self.compare_results)
 
     def compare_files(self):
-        if not self.reference_file_path or not self.current_file_path:
-            self.compare_results.addItem("Ошибка: Не выбраны оба файла для сравнения.")
-            return
-
-        result = compare_hash_files(self.reference_file_path, self.current_file_path)
-
-        self.compare_results.clear()
-        self.compare_results.addItem("Совпадающие файлы:")
-        self.compare_results.addItems(result["matched"] or ["Нет совпадений"])
-        self.compare_results.addItem("\nНесовпадающие файлы:")
-        self.compare_results.addItems(result["mismatched"] or ["Нет несовпадений"])
-        self.compare_results.addItem("\nОтсутствующие файлы:")
-        self.compare_results.addItems(result["missing"] or ["Нет отсутствующих файлов"])
+        compare_files(self.reference_file_path, self.current_file_path, self.compare_results)
 
     def calculate_folder_hash(self):
-        folder_path = QFileDialog.getExistingDirectory(self, "Выберите папку для хеширования")
-        if folder_path:
-            combined_hashes = ""
-            
-            # Получаем все файлы и сортируем их для последовательного порядка
-            all_files = []
-            for root, _, files in os.walk(folder_path):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    all_files.append(file_path)
-            
-            all_files.sort()  # Сортировка файлов для постоянного хеша
-
-            # Вычисляем хеш для каждого файла и объединяем
-            for file_path in all_files:
-                file_hash = md5_file(file_path)
-                combined_hashes += file_hash
-
-            # Вычисляем финальный хеш из объединенных хешей
-            final_hash = md5_string(combined_hashes)
-            self.folder_hash_output.setText(final_hash)
+        calculate_folder_hash(self, self.folder_hash_output)
 
     def check_folder_hash(self):
-        current_hash = self.folder_hash_output.text()
-        reference_hash = self.folder_reference_hash_input.text()
-
-        if not current_hash or not reference_hash:
-            self.folder_result_output.setText('Ошибка: Отсутствует текущий или эталонный хеш')
-            return
-
-        if integrity_check(current_hash, reference_hash):
-            self.folder_result_output.setText('Хеши совпадают!')
-        else:
-            self.folder_result_output.setText('Хеши не совпадают!')
+        check_folder_hash(self.folder_hash_output.text(), 
+                         self.folder_reference_hash_input.text(), 
+                         self.folder_result_output)
 
 
 if __name__ == '__main__':

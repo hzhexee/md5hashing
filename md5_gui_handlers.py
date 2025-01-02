@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QFileDialog, QApplication
 import os
-from md5_hashing import md5_string, md5_file, integrity_check
-from folderIntegrityCheck import compare_hash_files
+from md5_core import md5_string, md5_file, integrity_check
+from folder_hash_compare import compare_hash_files
 
 def update_hash_realtime(text, hash_output):
     if text:

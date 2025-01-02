@@ -54,11 +54,11 @@ def compare_hash_files(reference_file: str, current_file: str) -> dict:
     }
 
 # Пример использования:
-reference_file_path = "C:\\a\\md5hashing\\file_hashes.txt"
-current_file_path = "C:\\a\\md5hashing\\file_hashes2.txt"
+# reference_file_path = "C:\\a\\md5hashing\\file_hashes.txt"
+# current_file_path = "C:\\a\\md5hashing\\file_hashes2.txt"
 
-result = compare_hash_files(reference_file_path, current_file_path)
+# result = compare_hash_files(reference_file_path, current_file_path)
 
-print("Совпадающие файлы:", result["matched"])
-print("Несовпадающие файлы:", result["mismatched"])
-print("Отсутствующие файлы:", result["missing"])
+# print("Совпадающие файлы:", result["matched"])
+# print("Несовпадающие файлы:", result["mismatched"])
+# print("Отсутствующие файлы:", result["missing"])

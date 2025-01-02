@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import QFileDialog, QApplication
 import os
 from md5_hashing import md5_string, md5_file, integrity_check
 from folderIntegrityCheck import compare_hash_files
@@ -38,23 +38,39 @@ def check_hash_file(hash_output_file, reference_hash_input_file, result_output_f
 
 def on_folder_button_click(parent_widget, files_list):
     folder_path = QFileDialog.getExistingDirectory(parent_widget, "Выберите папку для хеширования файлов")
-    if folder_path:
-        files_list.clear()
+    if not folder_path:
+        return
 
-        output_file_path = os.path.join(folder_path, "file_hashes.txt")
+    files_list.clear()
+    output_file_path = os.path.join(folder_path, "file_hashes.txt")
+    
+    # First, collect all files
+    all_files = []
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            if file != "file_hashes.txt":  # Skip our output file
+                all_files.append(os.path.join(root, file))
+    
+    total_files = len(all_files)
+    processed = 0
 
-        with open(output_file_path, "w") as output_file:
-            output_file.write("Файл\tMD5 Хеш\n")
+    with open(output_file_path, "w", buffering=65536) as output_file:
+        output_file.write("Файл\tMD5 Хеш\n")
+        
+        for file_path in sorted(all_files):
+            rel_path = os.path.relpath(file_path, folder_path)
+            hashed_text = md5_file(file_path)
+            
+            output_line = f"{rel_path}: {hashed_text}"
+            files_list.addItem(output_line)
+            output_file.write(output_line + "\n")
+            
+            processed += 1
+            if processed % 10 == 0:  # Update UI every 10 files
+                files_list.scrollToBottom()
+                QApplication.processEvents()  # Fixed: Use QApplication instead of widget
 
-            for root, dirs, files in os.walk(folder_path):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    hashed_text = md5_file(file_path)
-
-                    files_list.addItem(f"{file}: {hashed_text}")
-                    output_file.write(f"{file}: {hashed_text}\n")
-
-        files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
+    files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
 
 def select_reference_file(parent_widget, compare_results):
     file_path, _ = QFileDialog.getOpenFileName(parent_widget, "Выберите эталонный файл с хешами", "", "Все файлы (*)")
@@ -87,23 +103,34 @@ def compare_files(reference_file_path, current_file_path, compare_results):
 
 def calculate_folder_hash(parent_widget, folder_hash_output):
     folder_path = QFileDialog.getExistingDirectory(parent_widget, "Выберите папку для хеширования")
-    if folder_path:
-        combined_hashes = ""
-        
-        all_files = []
-        for root, _, files in os.walk(folder_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                all_files.append(file_path)
-        
-        all_files.sort()
+    if not folder_path:
+        return
 
-        for file_path in all_files:
-            file_hash = md5_file(file_path)
-            combined_hashes += file_hash
+    # Collect and sort all files first
+    all_files = []
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            all_files.append(os.path.join(root, file))
+    
+    all_files.sort()
+    combined_hashes = []
+    
+    total_files = len(all_files)
+    processed = 0
 
-        final_hash = md5_string(combined_hashes)
-        folder_hash_output.setText(final_hash)
+    # Process files in batches
+    for file_path in all_files:
+        file_hash = md5_file(file_path)
+        combined_hashes.append(file_hash)
+        
+        processed += 1
+        if processed % 10 == 0:  # Update UI periodically
+            folder_hash_output.setText(f"Обработано {processed}/{total_files} файлов...")
+            QApplication.processEvents()  # Fixed: Use QApplication instead of widget
+
+    # Calculate final hash
+    final_hash = md5_string(''.join(combined_hashes))
+    folder_hash_output.setText(final_hash)
 
 def check_folder_hash(current_hash, reference_hash, folder_result_output):
     if not current_hash or not reference_hash:

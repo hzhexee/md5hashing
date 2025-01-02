@@ -68,6 +68,10 @@ def check_hash_string(hash_output, reference_hash_input, result_output):
     hash1 = hash_output.text()
     hash2 = reference_hash_input.text()
 
+    if not hash1 or not hash2:
+        result_output.setText('Ошибка: Поля хешей не могут быть пустыми!')
+        return
+
     if integrity_check(hash1, hash2):
         result_output.setText('Хеши совпадают!')
     else:
@@ -84,6 +88,10 @@ def on_file_button_click(parent_widget, hash_output_file):
 def check_hash_file(hash_output_file, reference_hash_input_file, result_output_file):
     hash1 = hash_output_file.text()
     hash2 = reference_hash_input_file.text()
+
+    if not hash1 or not hash2:
+        result_output_file.setText('Ошибка: Поля хешей не могут быть пустыми!')
+        return
 
     if integrity_check(hash1, hash2):
         result_output_file.setText('Хеши совпадают!')
@@ -188,7 +196,7 @@ def calculate_folder_hash(parent_widget, folder_hash_output):
 
 def check_folder_hash(current_hash, reference_hash, folder_result_output):
     if not current_hash or not reference_hash:
-        folder_result_output.setText('Ошибка: Отсутствует текущий или эталонный хеш')
+        folder_result_output.setText('Ошибка: Поля хешей не могут быть пустыми!')
         return
 
     if integrity_check(current_hash, reference_hash):

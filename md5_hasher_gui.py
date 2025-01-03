@@ -3,16 +3,15 @@ import os
 from PyQt6.QtWidgets import QApplication, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTabWidget, QFileDialog, QListWidget, QHBoxLayout, QSpacerItem, QSizePolicy
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
-from md5_hashing import md5_string, md5_file, integrity_check
-from folderIntegrityCheck import compare_hash_files
-from hashingFunctions import *
+from md5_core import md5_string, md5_file, integrity_check
+from md5_gui_handlers import *
 
 class MD5HasherApp(QWidget):
     def __init__(self):
         super().__init__()
 
         # Загрузка и применение таблицы стилей
-        with open('styles.css', 'r') as file:
+        with open('md5_gui_styles.css', 'r') as file:
             self.setStyleSheet(file.read())
             
 

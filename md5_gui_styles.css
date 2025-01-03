@@ -17,7 +17,7 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background: #0984e3;
+    background: #8c7ae6;
     color: white;
 }
 
@@ -34,7 +34,7 @@ QLineEdit:read-only {
 
 QPushButton {
     padding: 8px 16px;
-    background: #0984e3;
+    background: #8c7ae6;
     color: white;
     border: none;
     border-radius: 6px;
@@ -42,11 +42,11 @@ QPushButton {
 }
 
 QPushButton:hover {
-    background: #00a8ff;
+    background: #9c88ff;
 }
 
 QPushButton:pressed {
-    background: #0652DD;
+    background: #7158e2;
 }
 
 QLabel {

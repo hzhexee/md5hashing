@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MD5HasherApp</class>
+ <widget class="QWidget" name="MD5HasherApp">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MD5 Хеширование</string>
+  </property>
+  <layout class="QVBoxLayout" name="layout">
+   <property name="spacing">
+    <number>15</number>
+   </property>
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="tabs">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="tab1">
+      <attribute name="title">
+       <string>Хеширование строки</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tab1_layout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="input_label">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Введите строку:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="input_field"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="hash_label">
+         <property name="text">
+          <string>MD5 Хеш:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hash_output">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="reference_hash_label">
+         <property name="text">
+          <string>Эталонный хеш:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="reference_hash_input"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="check_button">
+         <property name="text">
+          <string>Проверить хеш</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="result_label">
+         <property name="text">
+          <string>Результат проверки:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="result_output">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab2">
+      <attribute name="title">
+       <string>Хеширование файла</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tab2_layout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="file_button">
+         <property name="text">
+          <string>Выбрать файл</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hash_output_file">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="reference_hash_input_file"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="check_button_file">
+         <property name="text">
+          <string>Проверить хеш</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="result_output_file">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab3">
+      <attribute name="title">
+       <string>Хеширование и сравнение</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tab3_layout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="folder_button">
+         <property name="text">
+          <string>Выбрать папку</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="files_list"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="select_ref_button">
+         <property name="text">
+          <string>Выбрать эталонный файл</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="select_curr_button">
+         <property name="text">
+          <string>Выбрать текущий файл</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="compare_button">
+         <property name="text">
+          <string>Сравнить файлы</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="compare_results"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab4">
+      <attribute name="title">
+       <string>Хеш папки</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tab4_layout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="folder_hash_button">
+         <property name="text">
+          <string>Выбрать папку</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="folder_hash_output">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="folder_reference_hash_input"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="folder_check_button">
+         <property name="text">
+          <string>Проверить хеш</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="folder_result_output">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

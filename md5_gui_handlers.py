@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFileDialog, QApplication, QMessageBox
 import os
-from md5_core import md5_string, md5_file, integrity_check
+from md5_core import md5_string, md5_file, integrity_check, md5_with_viz
 
 def validate_hash(hash_value: str) -> bool:
     """Validate if string is a valid MD5 hash."""
@@ -291,3 +291,15 @@ def check_folder_hash(current_hash, reference_hash, folder_result_output):
         folder_result_output.setText('Хеши совпадают!')
     else:
         folder_result_output.setText('Хеши не совпадают!')
+
+def format_step_info(step_info):
+    """Format step information for display"""
+    if not step_info:
+        return ""
+    
+    return (f"Чанк {step_info['chunk']}/{step_info['total_chunks']}\n"
+            f"Раунд {step_info['round']}, Шаг {step_info['step']}:\n"
+            f"A: {step_info['A']:08x}  B: {step_info['B']:08x}\n"
+            f"C: {step_info['C']:08x}  D: {step_info['D']:08x}\n"
+            f"f: {step_info['f']:08x}  g: {step_info['g']}\n"
+            f"Промежуточный результат: {step_info['temp']:08x}\n")

@@ -125,15 +125,16 @@ def integrity_check(file1_hash, file2_hash):
     return file1_hash == file2_hash
 
 def print_step(round_num, step_num, a, b, c, d, f, g, temp):
-    """Print intermediate state of MD5 calculation."""
-    print(f"\nRound {round_num}, Step {step_num}:")
-    print(f"A: {a:08x}  B: {b:08x}  C: {c:08x}  D: {d:08x}")
-    print(f"f: {f:08x}  g: {g}")
-    print(f"Temp result: {temp:08x}")
+    """Format intermediate state of MD5 calculation."""
+    return (f"\nRound {round_num}, Step {step_num}:\n"
+            f"A: {a:08x}  B: {b:08x}  C: {c:08x}  D: {d:08x}\n"
+            f"f: {f:08x}  g: {g}\n"
+            f"Temp result: {temp:08x}")
 
 def process_chunk_with_viz(a, b, c, d, M):
     """Process a single 512-bit chunk with visualization."""
     AA, BB, CC, DD = a, b, c, d
+    output = []
     
     for i in range(64):
         if i < 16:
@@ -160,35 +161,126 @@ def process_chunk_with_viz(a, b, c, d, M):
         BB = (BB + left_rotate(temp_calc, shift_amounts[i])) & 0xFFFFFFFF
         AA = temp
         
-        print_step(round_num, i % 16 + 1, AA, BB, CC, DD, f, g, temp_calc)
+        output.append(print_step(round_num, i % 16 + 1, AA, BB, CC, DD, f, g, temp_calc))
     
     return ((a + AA) & 0xFFFFFFFF, (b + BB) & 0xFFFFFFFF,
-            (c + CC) & 0xFFFFFFFF, (d + DD) & 0xFFFFFFFF)
+            (c + CC) & 0xFFFFFFFF, (d + DD) & 0xFFFFFFFF), "\n".join(output)
 
 def md5_with_viz(data):
     """Calculate MD5 hash with visualization of the process."""
     if isinstance(data, (bytes, bytearray)):
+        output = []
         a, b, c, d = md5_init()
         
-        # Convert to 512-bit chunks
         data = bytearray(data)
         orig_length = len(data)
         
-        # Padding
         data.append(0x80)
         while (len(data) % 64) != 56:
             data.append(0x00)
             
         data.extend(struct.pack('<Q', orig_length * 8))
         
-        # Process each chunk
         for chunk_start in range(0, len(data), 64):
             chunk = data[chunk_start:chunk_start + 64]
             M = struct.unpack('<16I', chunk)
-            print(f"\nProcessing chunk {chunk_start//64 + 1}:")
-            a, b, c, d = process_chunk_with_viz(a, b, c, d, M)
+            output.append(f"\nProcessing chunk {chunk_start//64 + 1}:")
+            result, viz_output = process_chunk_with_viz(a, b, c, d, M)
+            a, b, c, d = result
+            output.append(viz_output)
         
-        return '{:08x}{:08x}{:08x}{:08x}'.format(
+        final_hash = '{:08x}{:08x}{:08x}{:08x}'.format(
             *[struct.unpack('<I', struct.pack('>I', x))[0] for x in (a, b, c, d)]
         )
+        return final_hash
     raise TypeError("Data must be bytes or bytearray")
+
+class MD5StepByStep:
+    def __init__(self, data):
+        if not isinstance(data, (bytes, bytearray)):
+            raise TypeError("Data must be bytes or bytearray")
+        
+        self.data = bytearray(data)
+        self.orig_length = len(self.data)
+        self.a, self.b, self.c, self.d = md5_init()
+        self.current_chunk = 0
+        self.current_step = 0
+        self.chunks = []
+        self.prepare_chunks()
+        
+    def prepare_chunks(self):
+        # Padding
+        self.data.append(0x80)
+        while (len(self.data) % 64) != 56:
+            self.data.append(0x00)
+        self.data.extend(struct.pack('<Q', self.orig_length * 8))
+        
+        # Split into chunks
+        for i in range(0, len(self.data), 64):
+            chunk = self.data[i:i+64]
+            if len(chunk) < 64:
+                chunk.extend([0] * (64 - len(chunk)))
+            self.chunks.append(struct.unpack('<16I', chunk))
+
+    def next_step(self):
+        if self.current_chunk >= len(self.chunks):
+            return None, "Process completed"
+
+        M = self.chunks[self.current_chunk]
+        AA, BB, CC, DD = self.a, self.b, self.c, self.d
+
+        if self.current_step >= 64:
+            self.a = (self.a + AA) & 0xFFFFFFFF
+            self.b = (self.b + BB) & 0xFFFFFFFF
+            self.c = (self.c + CC) & 0xFFFFFFFF
+            self.d = (self.d + DD) & 0xFFFFFFFF
+            self.current_chunk += 1
+            self.current_step = 0
+            return None, f"Chunk {self.current_chunk} completed"
+
+        i = self.current_step
+        if i < 16:
+            f = F(BB, CC, DD)
+            g = i
+            round_num = 1
+        elif i < 32:
+            f = G(BB, CC, DD)
+            g = (5 * i + 1) % 16
+            round_num = 2
+        elif i < 48:
+            f = H(BB, CC, DD)
+            g = (3 * i + 5) % 16
+            round_num = 3
+        else:
+            f = I(BB, CC, DD)
+            g = (7 * i) % 16
+            round_num = 4
+
+        temp = DD
+        DD = CC
+        CC = BB
+        temp_calc = (AA + f + T[i] + M[g]) & 0xFFFFFFFF
+        BB = (BB + left_rotate(temp_calc, shift_amounts[i])) & 0xFFFFFFFF
+        AA = temp
+
+        self.current_step += 1
+        step_info = {
+            'round': round_num,
+            'step': i % 16 + 1,
+            'A': AA,
+            'B': BB,
+            'C': CC,
+            'D': DD,
+            'f': f,
+            'g': g,
+            'temp': temp_calc,
+            'chunk': self.current_chunk + 1,
+            'total_chunks': len(self.chunks)
+        }
+        
+        return step_info, None
+
+    def get_final_hash(self):
+        return '{:08x}{:08x}{:08x}{:08x}'.format(
+            *[struct.unpack('<I', struct.pack('>I', x))[0] for x in (self.a, self.b, self.c, self.d)]
+        )

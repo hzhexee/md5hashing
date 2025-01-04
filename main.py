@@ -2,6 +2,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QWidget
 from md5_hasher_ui import Ui_MD5HasherApp
 from md5_gui_handlers import *
+from md5_core import MD5StepByStep
 
 class MD5HasherApp(QWidget):
     def __init__(self):
@@ -18,6 +19,8 @@ class MD5HasherApp(QWidget):
         # Store file paths for comparison
         self.reference_file_path = None
         self.current_file_path = None
+
+        self.md5_stepper = None  # Add this line
 
         # Connect signals to slots
         self.setup_connections()
@@ -40,6 +43,10 @@ class MD5HasherApp(QWidget):
         # Tab 4: Folder hash
         self.ui.folder_hash_button.clicked.connect(self.calculate_folder_hash)
         self.ui.folder_check_button.clicked.connect(self.check_folder_hash)
+
+        # Tab 5: MD5 Visualization
+        self.ui.viz_start_button.clicked.connect(self.start_visualization)
+        self.ui.viz_next_button.clicked.connect(self.next_visualization_step)
 
     # Handler methods that connect to the existing handler functions
     def update_hash_realtime(self, text):
@@ -75,6 +82,36 @@ class MD5HasherApp(QWidget):
             self.ui.folder_reference_hash_input.text(),
             self.ui.folder_result_output
         )
+
+    def start_visualization(self):
+        input_text = self.ui.viz_input.text()
+        if not input_text:
+            self.ui.viz_output.clear()
+            return
+            
+        try:
+            self.md5_stepper = MD5StepByStep(bytearray(input_text, 'utf-8'))
+            self.ui.viz_next_button.setEnabled(True)
+            self.ui.viz_output.clear()
+            self.ui.viz_output.append("Процесс хеширования начат. Нажмите 'Следующий шаг', чтобы продолжить.")
+        except Exception as e:
+            self.ui.viz_output.append(f"Ошибка: {str(e)}")
+            self.ui.viz_next_button.setEnabled(False)
+
+    def next_visualization_step(self):
+        if not self.md5_stepper:
+            return
+            
+        step_info, completion_msg = self.md5_stepper.next_step()
+        
+        if completion_msg:
+            self.ui.viz_output.append(completion_msg)
+            if "completed" in completion_msg.lower():
+                self.ui.viz_output.append(f"\nФинальный хеш: {self.md5_stepper.get_final_hash()}")
+                self.ui.viz_next_button.setEnabled(False)
+                self.md5_stepper = None
+        elif step_info:
+            self.ui.viz_output.append(format_step_info(step_info))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

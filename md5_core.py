@@ -123,3 +123,72 @@ def md5_string(input_string):
 
 def integrity_check(file1_hash, file2_hash):
     return file1_hash == file2_hash
+
+def print_step(round_num, step_num, a, b, c, d, f, g, temp):
+    """Print intermediate state of MD5 calculation."""
+    print(f"\nRound {round_num}, Step {step_num}:")
+    print(f"A: {a:08x}  B: {b:08x}  C: {c:08x}  D: {d:08x}")
+    print(f"f: {f:08x}  g: {g}")
+    print(f"Temp result: {temp:08x}")
+
+def process_chunk_with_viz(a, b, c, d, M):
+    """Process a single 512-bit chunk with visualization."""
+    AA, BB, CC, DD = a, b, c, d
+    
+    for i in range(64):
+        if i < 16:
+            f = F(BB, CC, DD)
+            g = i
+            round_num = 1
+        elif i < 32:
+            f = G(BB, CC, DD)
+            g = (5 * i + 1) % 16
+            round_num = 2
+        elif i < 48:
+            f = H(BB, CC, DD)
+            g = (3 * i + 5) % 16
+            round_num = 3
+        else:
+            f = I(BB, CC, DD)
+            g = (7 * i) % 16
+            round_num = 4
+        
+        temp = DD
+        DD = CC
+        CC = BB
+        temp_calc = (AA + f + T[i] + M[g]) & 0xFFFFFFFF
+        BB = (BB + left_rotate(temp_calc, shift_amounts[i])) & 0xFFFFFFFF
+        AA = temp
+        
+        print_step(round_num, i % 16 + 1, AA, BB, CC, DD, f, g, temp_calc)
+    
+    return ((a + AA) & 0xFFFFFFFF, (b + BB) & 0xFFFFFFFF,
+            (c + CC) & 0xFFFFFFFF, (d + DD) & 0xFFFFFFFF)
+
+def md5_with_viz(data):
+    """Calculate MD5 hash with visualization of the process."""
+    if isinstance(data, (bytes, bytearray)):
+        a, b, c, d = md5_init()
+        
+        # Convert to 512-bit chunks
+        data = bytearray(data)
+        orig_length = len(data)
+        
+        # Padding
+        data.append(0x80)
+        while (len(data) % 64) != 56:
+            data.append(0x00)
+            
+        data.extend(struct.pack('<Q', orig_length * 8))
+        
+        # Process each chunk
+        for chunk_start in range(0, len(data), 64):
+            chunk = data[chunk_start:chunk_start + 64]
+            M = struct.unpack('<16I', chunk)
+            print(f"\nProcessing chunk {chunk_start//64 + 1}:")
+            a, b, c, d = process_chunk_with_viz(a, b, c, d, M)
+        
+        return '{:08x}{:08x}{:08x}{:08x}'.format(
+            *[struct.unpack('<I', struct.pack('>I', x))[0] for x in (a, b, c, d)]
+        )
+    raise TypeError("Data must be bytes or bytearray")

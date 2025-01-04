@@ -14,6 +14,7 @@ class MD5HasherApp(QWidget):
         
         # Set minimum window size
         self.setMinimumSize(1000, 800)  # Adjust these values as needed
+        self.setMaximumSize(1000, 800)
 
         # Load and apply stylesheet
         with open('md5_gui_styles.css', 'r') as file:

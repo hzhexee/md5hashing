@@ -160,7 +160,7 @@ def md5(data):
     if isinstance(data, (bytes, bytearray)):
         from io import BytesIO
         return md5_stream(BytesIO(data))
-    raise TypeError("Data must be bytes or bytearray")
+    raise TypeError("Данные должны быть типа bytes или bytearray")
 
 def md5_file(filepath):
     """

@@ -3,7 +3,15 @@ import os
 from md5_core import md5_string, md5_file, integrity_check, md5_with_viz
 
 def validate_hash(hash_value: str) -> bool:
-    """Проверка, является ли строка валидным хешем."""
+    """
+    Проверка, является ли строка валидным хешем.
+    
+    Args:
+        hash_value: Строка для проверки
+        
+    Returns:
+        bool: True если хеш валиден, False в противном случае
+    """
     if not hash_value:
         return False
     if len(hash_value) != 32:
@@ -11,24 +19,38 @@ def validate_hash(hash_value: str) -> bool:
     return all(c in '0123456789abcdefABCDEF' for c in hash_value)
 
 def show_error(parent_widget, message: str):
-    """Вывод окна ошибки."""
+    """
+    Вывод окна ошибки.
+    
+    Args:
+        parent_widget: Родительский виджет
+        message: Текст сообщения об ошибке
+    """
     QMessageBox.critical(parent_widget, "Ошибка", message)
 
 def compare_hash_files(reference_file: str, current_file: str) -> dict:
     """
     Сравнивает два файла с хешами и возвращает результаты сравнения.
-
-    :param reference_file: Путь к файлу с эталонными хешами.
-    :param current_file: Путь к файлу с текущими хешами.
-    :return: Словарь с результатами:
-             - 'matched': Список файлов с совпадающими хешами.
-             - 'mismatched': Список файлов с несовпадающими хешами.
-             - 'missing': Список файлов, отсутствующих в текущем файле.
+    
+    Args:
+        reference_file: Путь к файлу с эталонными хешами
+        current_file: Путь к файлу с текущими хешами
+        
+    Returns:
+        dict: Словарь с результатами сравнения:
+            - 'matched': Список файлов с совпадающими хешами
+            - 'mismatched': Список файлов с несовпадающими хешами
+            - 'missing': Список файлов, отсутствующих в текущем файле
+            
+    Raises:
+        FileNotFoundError: Если файл не найден
+        UnicodeDecodeError: При ошибке декодирования файла
+        ValueError: При обнаружении некорректных хешей
     """
     try:
         def parse_hash_file(file_path):
             hash_map = {}
-            # Try different encodings
+            # Пробуем разные кодировки для чтения файла
             encodings = ['utf-8', 'cp1251', 'windows-1251', 'ascii']
             
             for encoding in encodings:
@@ -39,11 +61,11 @@ def compare_hash_files(reference_file: str, current_file: str) -> dict:
                             if ": " in line:
                                 name, hash_value = line.strip().split(": ", 1)
                                 hash_map[name] = hash_value
-                    return hash_map  # If successful, return the hash_map
+                    return hash_map  # Если файл успешно прочитан, возвращаем хеши
                 except UnicodeDecodeError:
-                    continue  # Try next encoding if current one fails
+                    continue  # Пробуем следующую кодировку, если файл не удалось прочитать
             
-            # If all encodings fail, raise an error
+            # Если не удалось прочитать файл ни с одной кодировкой, выбрасываем исключение
             raise UnicodeDecodeError(f"Could not decode file {file_path} with any of the following encodings: {encodings}")
 
         # Проверяем существование файлов
@@ -98,6 +120,13 @@ def compare_hash_files(reference_file: str, current_file: str) -> dict:
         }
 
 def update_hash_realtime(text, hash_output):
+    """
+    Обновляет хеш в реальном времени при вводе текста.
+    
+    Args:
+        text: Введенный текст
+        hash_output: Виджет для отображения хеша
+    """
     try:
         if text:
             hashed_text = md5_string(text)
@@ -111,6 +140,14 @@ def update_hash_realtime(text, hash_output):
         hash_output.setText(f"Ошибка: {str(e)}")
 
 def check_hash_string(hash_output, reference_hash_input, result_output):
+    """
+    Проверяет совпадение двух строковых хешей.
+    
+    Args:
+        hash_output: Виджет с первым хешем
+        reference_hash_input: Виджет со вторым хешем
+        result_output: Виджет для отображения результата
+    """
     hash1 = hash_output.text()
     hash2 = reference_hash_input.text()
 
@@ -128,6 +165,13 @@ def check_hash_string(hash_output, reference_hash_input, result_output):
         result_output.setText('Хеши не совпадают!')
 
 def on_file_button_click(parent_widget, hash_output_file):
+    """
+    Обрабатывает нажатие кнопки выбора файла для хеширования.
+    
+    Args:
+        parent_widget: Родительский виджет
+        hash_output_file: Виджет для отображения хеша файла
+    """
     try:
         file_path, _ = QFileDialog.getOpenFileName(parent_widget, "Выберите файл для хеширования", "", "Все файлы (*)")
         if file_path:
@@ -151,6 +195,14 @@ def on_file_button_click(parent_widget, hash_output_file):
         hash_output_file.clear()
 
 def check_hash_file(hash_output_file, reference_hash_input_file, result_output_file):
+    """
+    Проверяет совпадение двух файловых хешей.
+    
+    Args:
+        hash_output_file: Виджет с первым хешем файла
+        reference_hash_input_file: Виджет со вторым хешем файла
+        result_output_file: Виджет для отображения результата
+    """
     hash1 = hash_output_file.text()
     hash2 = reference_hash_input_file.text()
 
@@ -168,6 +220,13 @@ def check_hash_file(hash_output_file, reference_hash_input_file, result_output_f
         result_output_file.setText('Хеши не совпадают!')
 
 def on_folder_button_click(parent_widget, files_list):
+    """
+    Обрабатывает нажатие кнопки выбора папки для хеширования файлов.
+    
+    Args:
+        parent_widget: Родительский виджет
+        files_list: Виджет для отображения списка файлов и их хешей
+    """
     folder_path = QFileDialog.getExistingDirectory(parent_widget, "Выберите папку для хеширования файлов")
     if not folder_path:
         return
@@ -204,6 +263,16 @@ def on_folder_button_click(parent_widget, files_list):
     files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
 
 def select_reference_file(parent_widget, compare_results):
+    """
+    Открывает диалог выбора эталонного файла с хешами.
+    
+    Args:
+        parent_widget: Родительский виджет
+        compare_results: Виджет для отображения результатов сравнения
+        
+    Returns:
+        str: Путь к выбранному эталонному файлу или None
+    """
     file_path, _ = QFileDialog.getOpenFileName(parent_widget, "Выберите эталонный файл с хешами", "", "Все файлы (*)")
     if file_path:
         compare_results.addItem(f"Эталонный файл выбран: {file_path}")
@@ -211,6 +280,16 @@ def select_reference_file(parent_widget, compare_results):
     return None
 
 def select_current_file(parent_widget, compare_results):
+    """
+    Открывает диалог выбора текущего файла с хешами.
+    
+    Args:
+        parent_widget: Родительский виджет
+        compare_results: Виджет для отображения результатов сравнения
+        
+    Returns:
+        str: Путь к выбранному текущему файлу или None
+    """
     file_path, _ = QFileDialog.getOpenFileName(parent_widget, "Выберите текущий файл с хешами", "", "Все файлы (*)")
     if file_path:
         compare_results.addItem(f"Текущий файл выбран: {file_path}")
@@ -218,6 +297,14 @@ def select_current_file(parent_widget, compare_results):
     return None
 
 def compare_files(reference_file_path, current_file_path, compare_results):
+    """
+    Сравнивает два файла с хешами и отображает результаты сравнения.
+    
+    Args:
+        reference_file_path: Путь к эталонному файлу
+        current_file_path: Путь к текущему файлу
+        compare_results: Виджет для отображения результатов сравнения
+    """
     if not reference_file_path or not current_file_path:
         compare_results.addItem("Ошибка: Не выбраны оба файла для сравнения.")
         return
@@ -237,6 +324,16 @@ def compare_files(reference_file_path, current_file_path, compare_results):
     compare_results.addItems(result["missing"] or ["Нет отсутствующих файлов"])
 
 def calculate_folder_hash(parent_widget, folder_hash_output):
+    """
+    Вычисляет хеш для всех файлов в выбранной папке.
+    
+    Args:
+        parent_widget: Родительский виджет
+        folder_hash_output: Виджет для отображения хеша папки
+        
+    Raises:
+        Exception: При ошибке обработки папки
+    """
     try:
         folder_path = QFileDialog.getExistingDirectory(parent_widget, "Выберите папку для хеширования")
         if not folder_path:
@@ -268,7 +365,7 @@ def calculate_folder_hash(parent_widget, folder_hash_output):
                 folder_hash_output.setText(f"Обработано {processed}/{total_files} файлов...")
                 QApplication.processEvents()
                 
-        # Calculate final hash
+        # Расчет финального хеша
         final_hash = md5_string(''.join(combined_hashes))
         if validate_hash(final_hash):
             folder_hash_output.setText(final_hash)
@@ -279,6 +376,14 @@ def calculate_folder_hash(parent_widget, folder_hash_output):
         folder_hash_output.clear()
 
 def check_folder_hash(current_hash, reference_hash, folder_result_output):
+    """
+    Проверяет совпадение хешей для папок.
+    
+    Args:
+        current_hash: Текущий хеш папки
+        reference_hash: Эталонный хеш папки
+        folder_result_output: Виджет для отображения результата
+    """
     if not current_hash or not reference_hash:
         folder_result_output.setText('Ошибка: Поля хешей не могут быть пустыми!')
         return
@@ -293,7 +398,15 @@ def check_folder_hash(current_hash, reference_hash, folder_result_output):
         folder_result_output.setText('Хеши не совпадают!')
 
 def format_step_info(step_info):
-    """Форматирование информации о шаге хеширования для вывода."""
+    """
+    Форматирование информации о шаге хеширования для вывода.
+    
+    Args:
+        step_info: Информация о текущем шаге хеширования
+        
+    Returns:
+        str: Отформатированная строка с информацией о шаге
+    """
     if not step_info:
         return ""
     

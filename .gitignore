@@ -1,9 +1,5 @@
 *.txt
 /file_hashes.txt
 /file_hashes2.txt
-/test.py
 /__pycache__
 /testing
-/folder_hash_compare.py
-/md5_hasher_gui.py
-/md5_steps.py

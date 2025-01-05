@@ -47,29 +47,29 @@ class MD5HasherApp(QWidget):
         
         Подключает все кнопки и поля ввода к соответствующим обработчикам событий.
         """
-        # Tab 1: String hashing
+        # Вкладка 1: Хеширование строки
         self.ui.input_field.textChanged.connect(self.update_hash_realtime)
         self.ui.check_button.clicked.connect(self.check_hash_string)
 
-        # Tab 2: File hashing
+        # Вкладка 2: Хеширование файла
         self.ui.file_button.clicked.connect(self.on_file_button_click)
         self.ui.check_button_file.clicked.connect(self.check_hash_file)
 
-        # Tab 3: Folder hashing and comparison
+        # Вкладка 3: Сравнение файлов
         self.ui.folder_button.clicked.connect(self.on_folder_button_click)
         self.ui.select_ref_button.clicked.connect(self.select_reference_file)
         self.ui.select_curr_button.clicked.connect(self.select_current_file)
         self.ui.compare_button.clicked.connect(self.compare_files)
 
-        # Tab 4: Folder hash
+        # Вкладка 4: Хеширование папки
         self.ui.folder_hash_button.clicked.connect(self.calculate_folder_hash)
         self.ui.folder_check_button.clicked.connect(self.check_folder_hash)
 
-        # Tab 5: MD5 Visualization
+        # Вкладка 5: Визуализация хеширования
         self.ui.viz_start_button.clicked.connect(self.start_visualization)
         self.ui.viz_next_button.clicked.connect(self.next_visualization_step)
 
-    # Handler methods that connect to the existing handler functions
+    # Функции-обработчики событий
     def update_hash_realtime(self, text):
         """
         Обновляет хеш в реальном времени при изменении входного текста.

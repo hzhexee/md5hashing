@@ -359,50 +359,54 @@ class MD5StepByStep:
             return None, "Process completed"
 
         M = self.chunks[self.current_chunk]
-        AA, BB, CC, DD = self.a, self.b, self.c, self.d
+        if self.current_step == 0:
+            self.AA = self.a
+            self.BB = self.b
+            self.CC = self.c
+            self.DD = self.d
 
         if self.current_step >= 64:
-            self.a = (self.a + AA) & 0xFFFFFFFF
-            self.b = (self.b + BB) & 0xFFFFFFFF
-            self.c = (self.c + CC) & 0xFFFFFFFF
-            self.d = (self.d + DD) & 0xFFFFFFFF
+            self.a = (self.a + self.AA) & 0xFFFFFFFF
+            self.b = (self.b + self.BB) & 0xFFFFFFFF
+            self.c = (self.c + self.CC) & 0xFFFFFFFF
+            self.d = (self.d + self.DD) & 0xFFFFFFFF
             self.current_chunk += 1
             self.current_step = 0
             return None, f"Chunk {self.current_chunk} completed"
 
         i = self.current_step
         if i < 16:
-            f = F(BB, CC, DD)
+            f = F(self.b, self.c, self.d)
             g = i
             round_num = 1
         elif i < 32:
-            f = G(BB, CC, DD)
+            f = G(self.b, self.c, self.d)
             g = (5 * i + 1) % 16
             round_num = 2
         elif i < 48:
-            f = H(BB, CC, DD)
+            f = H(self.b, self.c, self.d)
             g = (3 * i + 5) % 16
             round_num = 3
         else:
-            f = I(BB, CC, DD)
+            f = I(self.b, self.c, self.d)
             g = (7 * i) % 16
             round_num = 4
 
-        temp = DD
-        DD = CC
-        CC = BB
-        temp_calc = (AA + f + T[i] + M[g]) & 0xFFFFFFFF
-        BB = (BB + left_rotate(temp_calc, shift_amounts[i])) & 0xFFFFFFFF
-        AA = temp
+        temp = self.d
+        self.d = self.c
+        self.c = self.b
+        temp_calc = (self.a + f + T[i] + M[g]) & 0xFFFFFFFF
+        self.b = (self.b + left_rotate(temp_calc, shift_amounts[i])) & 0xFFFFFFFF
+        self.a = temp
 
         self.current_step += 1
         step_info = {
             'round': round_num,
             'step': i % 16 + 1,
-            'A': AA,
-            'B': BB,
-            'C': CC,
-            'D': DD,
+            'A': self.a,
+            'B': self.b,
+            'C': self.c,
+            'D': self.d,
             'f': f,
             'g': g,
             'temp': temp_calc,

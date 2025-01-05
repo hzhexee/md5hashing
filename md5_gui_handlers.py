@@ -3,7 +3,7 @@ import os
 from md5_core import md5_string, md5_file, integrity_check, md5_with_viz
 
 def validate_hash(hash_value: str) -> bool:
-    """Validate if string is a valid MD5 hash."""
+    """Проверка, является ли строка валидным хешем."""
     if not hash_value:
         return False
     if len(hash_value) != 32:
@@ -11,7 +11,7 @@ def validate_hash(hash_value: str) -> bool:
     return all(c in '0123456789abcdefABCDEF' for c in hash_value)
 
 def show_error(parent_widget, message: str):
-    """Show error message box."""
+    """Вывод окна ошибки."""
     QMessageBox.critical(parent_widget, "Ошибка", message)
 
 def compare_hash_files(reference_file: str, current_file: str) -> dict:
@@ -175,11 +175,11 @@ def on_folder_button_click(parent_widget, files_list):
     files_list.clear()
     output_file_path = os.path.join(folder_path, "file_hashes.txt")
     
-    # First, collect all files
+    # Сначала собираем все файлы в папке
     all_files = []
     for root, _, files in os.walk(folder_path):
         for file in files:
-            if file != "file_hashes.txt":  # Skip our output file
+            if file != "file_hashes.txt":  # Пропускаем файл с хешами
                 all_files.append(os.path.join(root, file))
     
     total_files = len(all_files)
@@ -197,9 +197,9 @@ def on_folder_button_click(parent_widget, files_list):
             output_file.write(output_line + "\n")
             
             processed += 1
-            if processed % 10 == 0:  # Update UI every 10 files
+            if processed % 10 == 0:  # Обновляем UI после обработки каждых 10 файлов
                 files_list.scrollToBottom()
-                QApplication.processEvents()  # Fixed: Use QApplication instead of widget
+                QApplication.processEvents()
 
     files_list.addItem(f"\nХеши файлов сохранены в {output_file_path}")
 
@@ -246,7 +246,7 @@ def calculate_folder_hash(parent_widget, folder_hash_output):
             show_error(parent_widget, "Выбранная папка не существует!")
             return
 
-        # Collect and sort all files first
+        # Собираем все файлы в папке и сортируем их
         all_files = []
         for root, _, files in os.walk(folder_path):
             for file in files:
@@ -258,16 +258,16 @@ def calculate_folder_hash(parent_widget, folder_hash_output):
         total_files = len(all_files)
         processed = 0
 
-        # Process files in batches
+        # Обрабатываеи файлы группами по 10 штук
         for file_path in all_files:
             file_hash = md5_file(file_path)
             combined_hashes.append(file_hash)
             
             processed += 1
-            if processed % 10 == 0:  # Update UI periodically
+            if processed % 10 == 0:
                 folder_hash_output.setText(f"Обработано {processed}/{total_files} файлов...")
-                QApplication.processEvents()  # Fixed: Use QApplication instead of widget
-
+                QApplication.processEvents()
+                
         # Calculate final hash
         final_hash = md5_string(''.join(combined_hashes))
         if validate_hash(final_hash):
@@ -293,7 +293,7 @@ def check_folder_hash(current_hash, reference_hash, folder_result_output):
         folder_result_output.setText('Хеши не совпадают!')
 
 def format_step_info(step_info):
-    """Format step information for display"""
+    """Форматирование информации о шаге хеширования для вывода."""
     if not step_info:
         return ""
     

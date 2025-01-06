@@ -76,7 +76,7 @@ def md5_stream(stream):
     a, b, c, d = md5_init()
     total_length = 0
     
-    # Process chunks
+    # Обрабатываем данные блоками по 64 байта
     chunk = stream.read(64)
     while chunk:
         total_length += len(chunk)
@@ -86,16 +86,16 @@ def md5_stream(stream):
         a, b, c, d = process_chunk(a, b, c, d, M)
         chunk = stream.read(64)
     
-    # Handle final chunk with padding
+    # Обрабатываем последний блок данных с учетом добавления бита 1 и длины данных
     chunk = bytearray(chunk)
     total_length_bits = total_length * 8
     
-    # Padding
+    # Дообавляем бит 1
     chunk.append(0x80)
     chunk.extend([0] * (56 - len(chunk) if len(chunk) <= 56 else (120 - len(chunk))))
     chunk.extend(struct.pack('<Q', total_length_bits))
     
-    # Process final chunk(s)
+    # Обрабатываем последний блок
     for i in range(0, len(chunk), 64):
         block = chunk[i:i+64]
         if len(block) < 64:  # Pad last block if needed
@@ -103,7 +103,7 @@ def md5_stream(stream):
         M = struct.unpack('<16I', block)
         a, b, c, d = process_chunk(a, b, c, d, M)
     
-    # Convert to little-endian and return result
+    # Конвертируем результат в шестнадцатеричную строку
     return '{:08x}{:08x}{:08x}{:08x}'.format(
         *[struct.unpack('<I', struct.pack('>I', x))[0] for x in (a, b, c, d)]
     )

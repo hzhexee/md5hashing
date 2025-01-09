@@ -282,6 +282,118 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab5">
+      <attribute name="title">
+       <string>Визуализация MD5</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tab5_layout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="margin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="viz_input_label">
+         <property name="text">
+          <string>Введите строку для визуализации:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="viz_input"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="viz_buttons_layout">
+         <item>
+          <widget class="QPushButton" name="viz_start_button">
+           <property name="text">
+            <string>Начать</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="viz_next_button">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Следующий шаг</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="viz_output">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab6">
+      <attribute name="title">
+       <string>HMAC-MD5</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="tab6_layout">
+       <property name="spacing">
+        <number>8</number>
+       </property>
+       <property name="margin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="hmac_key_label">
+         <property name="text">
+          <string>Введите ключ HMAC:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hmac_key"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="hmac_input_label">
+         <property name="text">
+          <string>Введите текст:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hmac_input"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="hmac_output_label">
+         <property name="text">
+          <string>HMAC-MD5:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hmac_output">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="hmac_file_button">
+         <property name="text">
+          <string>Выбрать файл для HMAC</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="hmac_output_file">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

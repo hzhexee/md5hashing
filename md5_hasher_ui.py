@@ -175,8 +175,8 @@ class Ui_MD5HasherApp(object):
         self.tab6 = QtWidgets.QWidget()
         self.tab6.setObjectName("tab6")
         self.tab6_layout = QtWidgets.QVBoxLayout(self.tab6)
-        self.tab6_layout.setContentsMargins(20, 20, 20, 20)
-        self.tab6_layout.setSpacing(15)
+        self.tab6_layout.setContentsMargins(10, 10, 10, 10)  # Change margins to 10 pixels
+        self.tab6_layout.setSpacing(8)  # Change spacing between widgets to 8 pixels
         self.tab6_layout.setObjectName("tab6_layout")
 
         # HMAC key input

@@ -122,10 +122,6 @@ def compare_hash_files(reference_file: str, current_file: str) -> dict:
 def update_hash_realtime(text, hash_output):
     """
     Обновляет хеш в реальном времени при вводе текста.
-    
-    Args:
-        text: Введенный текст
-        hash_output: Виджет для отображения хеша
     """
     try:
         if text:
@@ -133,30 +129,27 @@ def update_hash_realtime(text, hash_output):
             if validate_hash(hashed_text):
                 hash_output.setText(hashed_text)
             else:
-                hash_output.setText("Ошибка хеширования")
+                QMessageBox.warning(None, "Предупреждение", "Ошибка хеширования")
+                hash_output.clear()
         else:
             hash_output.clear()
     except Exception as e:
-        hash_output.setText(f"Ошибка: {str(e)}")
+        QMessageBox.critical(None, "Ошибка", f"Ошибка: {str(e)}")
+        hash_output.clear()
 
 def check_hash_string(hash_output, reference_hash_input, result_output):
     """
     Проверяет совпадение двух строковых хешей.
-    
-    Args:
-        hash_output: Виджет с первым хешем
-        reference_hash_input: Виджет со вторым хешем
-        result_output: Виджет для отображения результата
     """
     hash1 = hash_output.text()
     hash2 = reference_hash_input.text()
 
     if not hash1 or not hash2:
-        result_output.setText('Ошибка: Поля хешей не могут быть пустыми!')
+        QMessageBox.warning(None, "Предупреждение", "Поля хешей не могут быть пустыми!")
         return
 
     if not validate_hash(hash1) or not validate_hash(hash2):
-        result_output.setText('Ошибка: Некорректный формат MD5 хеша!')
+        QMessageBox.warning(None, "Предупреждение", "Некорректный формат MD5 хеша!")
         return
 
     if integrity_check(hash1, hash2):
@@ -299,21 +292,16 @@ def select_current_file(parent_widget, compare_results):
 def compare_files(reference_file_path, current_file_path, compare_results):
     """
     Сравнивает два файла с хешами и отображает результаты сравнения.
-    
-    Args:
-        reference_file_path: Путь к эталонному файлу
-        current_file_path: Путь к текущему файлу
-        compare_results: Виджет для отображения результатов сравнения
     """
     if not reference_file_path or not current_file_path:
-        compare_results.addItem("Ошибка: Не выбраны оба файла для сравнения.")
+        QMessageBox.warning(None, "Предупреждение", "Не выбраны оба файла для сравнения.")
         return
 
     result = compare_hash_files(reference_file_path, current_file_path)
 
     compare_results.clear()
     if "error" in result:
-        compare_results.addItem(f"Ошибка: {result['error']}")
+        QMessageBox.critical(None, "Ошибка", str(result["error"]))
         return
 
     compare_results.addItem("Совпадающие файлы:")
@@ -385,11 +373,11 @@ def check_folder_hash(current_hash, reference_hash, folder_result_output):
         folder_result_output: Виджет для отображения результата
     """
     if not current_hash or not reference_hash:
-        folder_result_output.setText('Ошибка: Поля хешей не могут быть пустыми!')
+        QMessageBox.warning(None, "Предупреждение", "Поля хешей не могут быть пустыми!")
         return
 
     if not validate_hash(current_hash) or not validate_hash(reference_hash):
-        folder_result_output.setText('Ошибка: Некорректный формат MD5 хеша!')
+        QMessageBox.warning(None, "Предупреждение", "Некорректный формат MD5 хеша!")
         return
 
     if integrity_check(current_hash, reference_hash):

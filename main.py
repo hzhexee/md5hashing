@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt6.QtWidgets import QApplication, QWidget
 from md5_hasher_ui import Ui_MD5HasherApp
 from md5_gui_handlers import *
 from md5_core import MD5StepByStep
@@ -150,10 +150,10 @@ class MD5HasherApp(QWidget):
     def start_visualization(self):
         """
         Начинает пошаговую визуализацию процесса MD5 хеширования.
+        Инициализирует MD5StepByStep для введенного текста.
         """
         input_text = self.ui.viz_input.text()
         if not input_text:
-            QMessageBox.warning(self, "Предупреждение", "Введите текст для визуализации!")
             self.ui.viz_output.clear()
             return
             
@@ -163,8 +163,7 @@ class MD5HasherApp(QWidget):
             self.ui.viz_output.clear()
             self.ui.viz_output.append("Процесс хеширования начат. Нажмите 'Следующий шаг', чтобы продолжить.")
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
-            self.ui.viz_output.clear()
+            self.ui.viz_output.append(f"Ошибка: {str(e)}")
             self.ui.viz_next_button.setEnabled(False)
 
     def next_visualization_step(self):

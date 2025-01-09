@@ -69,6 +69,11 @@ class MD5HasherApp(QWidget):
         self.ui.viz_start_button.clicked.connect(self.start_visualization)
         self.ui.viz_next_button.clicked.connect(self.next_visualization_step)
 
+        # Add HMAC connections
+        self.ui.hmac_input.textChanged.connect(self.update_hmac_realtime)
+        self.ui.hmac_key.textChanged.connect(self.update_hmac_realtime)
+        self.ui.hmac_file_button.clicked.connect(self.calculate_file_hmac)
+
     # Функции-обработчики событий
     def update_hash_realtime(self, text):
         """
@@ -184,6 +189,18 @@ class MD5HasherApp(QWidget):
                 self.md5_stepper = None
         elif step_info:
             self.ui.viz_output.append(format_step_info(step_info))
+
+    def update_hmac_realtime(self):
+        """Обновляет HMAC в реальном времени."""
+        update_hmac_realtime(
+            self.ui.hmac_input.text(),
+            self.ui.hmac_key.text(),
+            self.ui.hmac_output
+        )
+
+    def calculate_file_hmac(self):
+        """Вычисляет HMAC для выбранного файла."""
+        calculate_file_hmac(self, self.ui.hmac_key, self.ui.hmac_output_file)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

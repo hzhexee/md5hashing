@@ -426,3 +426,59 @@ class MD5StepByStep:
         return '{:08x}{:08x}{:08x}{:08x}'.format(
             *[struct.unpack('<I', struct.pack('>I', x))[0] for x in (self.a, self.b, self.c, self.d)]
         )
+
+def hmac_md5(key: bytes, message: bytes) -> str:
+    """
+    Вычисляет HMAC-MD5 для сообщения с заданным ключом.
+    
+    Args:
+        key: Ключ для HMAC
+        message: Сообщение для хеширования
+        
+    Returns:
+        str: HMAC-MD5 в виде шестнадцатеричной строки
+    """
+    block_size = 64  # размер блока для MD5 в байтах
+    
+    # Если ключ длиннее размера блока, хешируем его
+    if len(key) > block_size:
+        key = bytes.fromhex(md5(key))
+    
+    # Если ключ короче размера блока, дополняем нулями
+    if len(key) < block_size:
+        key = key + b'\x00' * (block_size - len(key))
+    
+    # Создаем внутренний и внешний ключи
+    o_key_pad = bytes(x ^ 0x5c for x in key)
+    i_key_pad = bytes(x ^ 0x36 for x in key)
+    
+    # Вычисляем HMAC
+    inner_hash = md5(i_key_pad + message)
+    return md5(o_key_pad + bytes.fromhex(inner_hash))
+
+def hmac_md5_file(key: bytes, filepath: str) -> str:
+    """
+    Вычисляет HMAC-MD5 для файла с заданным ключом.
+    
+    Args:
+        key: Ключ для HMAC
+        filepath: Путь к файлу
+        
+    Returns:
+        str: HMAC-MD5 в виде шестнадцатеричной строки
+    """
+    with open(filepath, "rb") as f:
+        return hmac_md5(key, f.read())
+
+def hmac_md5_string(key: str, message: str) -> str:
+    """
+    Вычисляет HMAC-MD5 для строки с заданным ключом.
+    
+    Args:
+        key: Строковый ключ для HMAC
+        message: Сообщение для хеширования
+        
+    Returns:
+        str: HMAC-MD5 в виде шестнадцатеричной строки
+    """
+    return hmac_md5(key.encode('utf-8'), message.encode('utf-8'))

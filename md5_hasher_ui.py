@@ -171,6 +171,54 @@ class Ui_MD5HasherApp(object):
 
         self.tabs.addTab(self.tab5, "")
 
+        # Add HMAC tab (tab6)
+        self.tab6 = QtWidgets.QWidget()
+        self.tab6.setObjectName("tab6")
+        self.tab6_layout = QtWidgets.QVBoxLayout(self.tab6)
+        self.tab6_layout.setContentsMargins(20, 20, 20, 20)
+        self.tab6_layout.setSpacing(15)
+        self.tab6_layout.setObjectName("tab6_layout")
+
+        # HMAC key input
+        self.hmac_key_label = QtWidgets.QLabel(parent=self.tab6)
+        self.hmac_key_label.setObjectName("hmac_key_label")
+        self.tab6_layout.addWidget(self.hmac_key_label)
+
+        self.hmac_key = QtWidgets.QLineEdit(parent=self.tab6)
+        self.hmac_key.setObjectName("hmac_key")
+        self.tab6_layout.addWidget(self.hmac_key)
+
+        # HMAC text input
+        self.hmac_input_label = QtWidgets.QLabel(parent=self.tab6)
+        self.hmac_input_label.setObjectName("hmac_input_label")
+        self.tab6_layout.addWidget(self.hmac_input_label)
+
+        self.hmac_input = QtWidgets.QLineEdit(parent=self.tab6)
+        self.hmac_input.setObjectName("hmac_input")
+        self.tab6_layout.addWidget(self.hmac_input)
+
+        # HMAC output
+        self.hmac_output_label = QtWidgets.QLabel(parent=self.tab6)
+        self.hmac_output_label.setObjectName("hmac_output_label")
+        self.tab6_layout.addWidget(self.hmac_output_label)
+
+        self.hmac_output = QtWidgets.QLineEdit(parent=self.tab6)
+        self.hmac_output.setReadOnly(True)
+        self.hmac_output.setObjectName("hmac_output")
+        self.tab6_layout.addWidget(self.hmac_output)
+
+        # File HMAC section
+        self.hmac_file_button = QtWidgets.QPushButton(parent=self.tab6)
+        self.hmac_file_button.setObjectName("hmac_file_button")
+        self.tab6_layout.addWidget(self.hmac_file_button)
+
+        self.hmac_output_file = QtWidgets.QLineEdit(parent=self.tab6)
+        self.hmac_output_file.setReadOnly(True)
+        self.hmac_output_file.setObjectName("hmac_output_file")
+        self.tab6_layout.addWidget(self.hmac_output_file)
+
+        self.tabs.addTab(self.tab6, "")
+
         self.layout.addWidget(self.tabs)
 
         self.retranslateUi(MD5HasherApp)
@@ -201,3 +249,8 @@ class Ui_MD5HasherApp(object):
         self.viz_start_button.setText(_translate("MD5HasherApp", "Начать"))
         self.viz_next_button.setText(_translate("MD5HasherApp", "Следующий шаг"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab5), _translate("MD5HasherApp", "Визуализация MD5"))
+        self.hmac_key_label.setText(_translate("MD5HasherApp", "Введите ключ HMAC:"))
+        self.hmac_input_label.setText(_translate("MD5HasherApp", "Введите текст:"))
+        self.hmac_output_label.setText(_translate("MD5HasherApp", "HMAC-MD5:"))
+        self.hmac_file_button.setText(_translate("MD5HasherApp", "Выбрать файл для HMAC"))
+        self.tabs.setTabText(self.tabs.indexOf(self.tab6), _translate("MD5HasherApp", "HMAC-MD5"))

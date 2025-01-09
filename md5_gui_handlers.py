@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFileDialog, QApplication, QMessageBox
 import os
-from md5_core import md5_string, md5_file, integrity_check, md5_with_viz
+from md5_core import md5_string, md5_file, integrity_check, md5_with_viz, hmac_md5_string, hmac_md5_file
 
 def validate_hash(hash_value: str) -> bool:
     """
@@ -404,3 +404,57 @@ def format_step_info(step_info):
             f"C: {step_info['C']:08x}  D: {step_info['D']:08x}\n"
             f"f: {step_info['f']:08x}  g: {step_info['g']}\n"
             f"Промежуточный результат: {step_info['temp']:08x}\n")
+
+def update_hmac_realtime(text, key, hmac_output):
+    """
+    Обновляет HMAC в реальном времени при вводе текста.
+    
+    Args:
+        text: Входной текст
+        key: Ключ HMAC
+        hmac_output: Виджет для вывода HMAC
+    """
+    try:
+        if text and key:
+            hmac_text = hmac_md5_string(key, text)
+            if validate_hash(hmac_text):
+                hmac_output.setText(hmac_text)
+            else:
+                hmac_output.clear()
+        else:
+            hmac_output.clear()
+    except Exception as e:
+        QMessageBox.critical(None, "Ошибка", f"Ошибка: {str(e)}")
+        hmac_output.clear()
+
+def calculate_file_hmac(parent_widget, key_input, hmac_output):
+    """
+    Вычисляет HMAC-MD5 для выбранного файла.
+    
+    Args:
+        parent_widget: Родительский виджет
+        key_input: Виджет с ключом HMAC
+        hmac_output: Виджет для вывода HMAC
+    """
+    try:
+        key = key_input.text()
+        if not key:
+            show_error(parent_widget, "Ключ HMAC не может быть пустым!")
+            return
+
+        file_path, _ = QFileDialog.getOpenFileName(parent_widget, "Выберите файл для HMAC", "", "Все файлы (*)")
+        if file_path:
+            if not os.path.exists(file_path):
+                show_error(parent_widget, "Выбранный файл не существует!")
+                return
+            
+            hmac_value = hmac_md5_file(key.encode('utf-8'), file_path)
+            if validate_hash(hmac_value):
+                hmac_output.setText(hmac_value)
+            else:
+                show_error(parent_widget, "Ошибка при вычислении HMAC!")
+        else:
+            hmac_output.clear()
+    except Exception as e:
+        show_error(parent_widget, f"Ошибка при обработке файла: {str(e)}")
+        hmac_output.clear()
